@@ -16,12 +16,14 @@ void TSC1641_SetConf(I2C_HandleTypeDef *hi2c1, Configuration * conf){
 	HAL_I2C_Master_Transmit( hi2c1, I2C_TSC1641_ADD_W, &datasend[0], 3, 1000 );
 }
 
+
+volatile static HAL_StatusTypeDef  last_conf_status;
 void TSC1641_SetConf2(I2C_HandleTypeDef *hi2c1, RegConfiguration * pCnf){
 	uint8_t data[ 2 ] = { 0x00, 0x00 };
 	data[ 0 ] = ( pCnf->bitbuffer >> 8 );
 	data[ 1 ] = ( pCnf->bitbuffer & 0xFF );
 	uint8_t datasend[3] = { TSC1641_RegAdd_Conf, data[0], data[1] };
-	HAL_I2C_Master_Transmit( hi2c1, I2C_TSC1641_ADD_W, &datasend[0], 3, 1000 );
+	last_conf_status = HAL_I2C_Master_Transmit( hi2c1, I2C_TSC1641_ADD_W, &datasend[0], 3, 1000 );
 }
 
 /*write the shunt resisor value (TSC1641_RegAdd_RShunt) in the RShunt register*/
