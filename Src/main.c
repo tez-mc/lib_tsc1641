@@ -25,15 +25,17 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tsc1641.h"
+#include "tsc1651_cfg.h"
+#include <assert.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-uint8_t DataShunt[2];
-uint8_t DataVload[2];
-uint8_t DataCurrent[2];
+//uint8_t DataShunt[2];
+//uint8_t DataVload[2];
+//uint8_t DataCurrent[2];
 double current_amp = 0.0;
-#define LSB ( 2.5e-6 / 5e-3 )
+
 
 Flag flag;
 Flag* pFlag = &flag;
@@ -97,12 +99,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-//  Configuration cnf;
-//  Configuration* pCnf = &cnf;
-//  pCnf->TSC1641_RESET = TSC1641_rst_Off;	// reset bit to ZERO
-//  pCnf->TSC1641_CT = TSC1641_Conf_CT_32768;// conversion time 32ms
-//  pCnf->TSC1641_TEMP = TSC1641_Temp_On;
-//  pCnf->TSC1641_MODE = TSC1641_Mode_VshloadCont; /* Mode continuous Vshunt and Vload*/
+  assert( TSC1641Initialize( TSC1641_FD_1 ) == TSC1641_STATUS_OK );
 
   RegConfiguration cnf2 = {
 	 .bits = {
@@ -114,18 +111,6 @@ int main(void)
 	 }
 	};
 
-
-//  	  Alert alert;
-//	Alert *pAlert = &alert;
-//	pAlert->TSC1641_SOL = TSC1641_Alert_On;
-//	pAlert->TSC1641_SUL = TSC1641_Alert_Off;
-//	pAlert->TSC1641_LOL = TSC1641_Alert_On;
-//	pAlert->TSC1641_LUL = TSC1641_Alert_Off;
-//	pAlert->TSC1641_POL = TSC1641_Alert_On;
-//	pAlert->TSC1641_TOL = TSC1641_Alert_Off;
-//	pAlert->TSC1641_CVNR = TSC1641_Alert_On;
-//	pAlert->TSC1641_APOL = TSC1641_Alert_Off;
-//	pAlert->TSC1641_ALEN = TSC1641_Alert_On;
 
 	RegMask regMask = {
 		.bits = {
@@ -150,13 +135,10 @@ int main(void)
 		pLimit->POWER_OV_LIM = 0x1F40;
 		pLimit->TEMP_OV_LIM = 0x008C;
 
-//		TSC1641_SetConf(&hi2c1, pCnf); //write of the configuration
-		TSC1641_SetConf2( &hi2c1, &cnf2 ); //write of the configuration
-		TSC1641_SetRShunt(&hi2c1);				//write of the shunt resistor value
-		TSC1641_SetLimits(&hi2c1, pLimit);//write of the limit thresholds
-
-//		TSC1641_SetAlerts(&hi2c1, pAlert);//write the mask register
-		TSC1641_SetMask( &hi2c1, &regMask );
+		assert( TSC1641SetConf( TSC1641_FD_1, &cnf2 ) == TSC1641_STATUS_OK ); //write of the configuration
+		assert( TSC1641SetRShunt( TSC1641_FD_1 ) == TSC1641_STATUS_OK );				//write of the shunt resistor value
+		assert( TSC1641SetLimits( TSC1641_FD_1, pLimit) == TSC1641_STATUS_OK );//write of the limit thresholds
+		assert( TSC1641SetMask( TSC1641_FD_1, &regMask ) == TSC1641_STATUS_OK );
 
 
 
@@ -164,11 +146,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  TSC1641_GetShuntVal(&hi2c1,DataShunt);
-	  TSC1641_GetCurrentVal(&hi2c1,DataCurrent);
-	  current_amp = LSB * DataCurrent[ 1 ];
+  while (1){
+	  current_amp = TSC1641GetCurrentAmp( TSC1641_FD_1 );
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

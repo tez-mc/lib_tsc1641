@@ -1,16 +1,11 @@
 #pragma once
 
 #include <stdint.h>
+#include <math.h>
 #include "main.h"
 #include "i2c.h"
 
-/*------------------Shunt value------------------------------------*/
 
-#define TSC1641_RShunt_Val	0x01f4	// In this example, Rshunt LSB is 5�Ohm so Rshunt of 5mOhm = 0d1000 0x01f4
-
-/*------------------I2C adress ------------------------------------*/
-#define I2C_TSC1641_ADD_W	0x80
-#define I2C_TSC1641_ADD_R	0x81
 
 /*------------------register map-----------------------------------*/
 #define TSC1641_RegAdd_Conf					0x00								//configuration register
@@ -33,8 +28,8 @@
 
 
 /*-----------------configuration register---------------------------*/
-#define TSC1641_rst_On							0x01  /*RST off*/
-#define TSC1641_rst_Off							0x00  /*RST on */
+#define TSC1641_rst_On						0x01  /*RST off*/
+#define TSC1641_rst_Off						0x00  /*RST on */
 
 /*conversion time*/
 #define TSC1641_Conf_CT_128					0x00  /*conversion time of 128us*/
@@ -47,30 +42,26 @@
 #define TSC1641_Conf_CT_16384				0x07
 #define TSC1641_Conf_CT_32768				0x08	/*conversion time of 32ms*/
 
-#define TSC1641_Temp_Off						0x00  /*Temperatrue sensor off*/
-#define TSC1641_Temp_On							0x01  /*Temperatrue sensor on */
+#define TSC1641_Temp_Off					0x00  /*Temperatrue sensor off*/
+#define TSC1641_Temp_On						0x01  /*Temperatrue sensor on */
 
 /*mode*/
 #define TSC1641_Mode_ShutDown				0x00	/*mode shutdown                */
 #define TSC1641_Mode_Vsh_Trig				0x01	/*mode trigger Vshunt only     */
-#define TSC1641_Mode_Vload_Trig			0x02	/*mode trigger Vload only      */
-#define TSC1641_Mode_Vshload_Trig		0x03	/*mode trigger Vshunt and Vload*/
-#define TSC1641_Mode_Idle						0x04	/*mode Idle                    */
+#define TSC1641_Mode_Vload_Trig				0x02	/*mode trigger Vload only      */
+#define TSC1641_Mode_Vshload_Trig			0x03	/*mode trigger Vshunt and Vload*/
+#define TSC1641_Mode_Idle					0x04	/*mode Idle                    */
 #define TSC1641_Mode_VshCont				0x05	/*mode continuous Vshunt only  */
-#define TSC1641_Mode_VloadCont			0x06	/*mode continuous Vload only   */
-#define TSC1641_Mode_VshloadCont		0x07	/*mode continuous Vshunt and Vload*/
+#define TSC1641_Mode_VloadCont				0x06	/*mode continuous Vload only   */
+#define TSC1641_Mode_VshloadCont			0x07	/*mode continuous Vshunt and Vload*/
 
 
 /* ------------------Alert-----------------------------------------*/
 #define TSC1641_Alert_On							0x01
 #define TSC1641_Alert_Off							0x00
 
-typedef struct{
-	uint8_t TSC1641_RESET ;
-	uint8_t TSC1641_CT ;
-	uint8_t TSC1641_TEMP ;
-	uint8_t TSC1641_MODE ;
-} Configuration;
+
+
 
 // 5.3.1 Configuration register (00h)
 typedef struct{
@@ -87,18 +78,6 @@ typedef struct{
 } RegConfiguration;
 
 // definition of the ALERT register
-typedef struct{
-	uint8_t TSC1641_SOL ;		// Shunt Voltage Over voltage
-	uint8_t TSC1641_SUL ;		// Shunt Voltage Under voltage
-	uint8_t TSC1641_LOL ;		// Load Voltage Over voltage
-	uint8_t TSC1641_LUL ;		// Load Voltage Under voltage
-	uint8_t TSC1641_POL ;		// Power Over Limit
-	uint8_t TSC1641_TOL ;		// Temperature Over Limit
-	uint8_t TSC1641_CVNR ;	// Conversion ready alert enable
-	uint8_t TSC1641_APOL ;	// Alert polarity
-	uint8_t TSC1641_ALEN ;	// Alert Latch Enable
-} Alert;
-
 // 5.3.7 Mask register (06h)
 typedef
 	union{
@@ -134,7 +113,6 @@ typedef struct{
 }Flag;
 
 // Definition of alert thresholds :
-
 typedef struct{
 	uint16_t VSHUNT_OV_LIM ;	// Vsunt Over voltage limit value
 	uint16_t VSHUNT_UV_LIM ;		// Vshunt Under voltage limit value
@@ -144,22 +122,27 @@ typedef struct{
 	uint16_t TEMP_OV_LIM ;		// Temperature over limit value
 }Limit;
 
-void TSC1641_SetConf(I2C_HandleTypeDef *hi2c1, Configuration * CONF1);
-void TSC1641_SetConf2(I2C_HandleTypeDef *hi2c1, RegConfiguration * conf);
-
-void TSC1641_SetRShunt(I2C_HandleTypeDef *hi2c1);
-
-void TSC1641_SetAlerts(I2C_HandleTypeDef *hi2c1, Alert* ALERT1);
-void TSC1641_SetMask(I2C_HandleTypeDef *hi2c1, RegMask* reg);
-
-void TSC1641_SetLimits(I2C_HandleTypeDef *hi2c1, Limit* LIMIT);
-void TSC1641_GetAlert(I2C_HandleTypeDef *hi2c1, Flag* FLAG1);
-void TSC1641_GetShuntVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);
-void TSC1641_GetVloadVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);
-void TSC1641_GetCurrentVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);
 
 
+typedef enum{
+	TSC1641_STATUS_OK                    = 0x00U,
+	TSC1641_STATUS_ERROR                 = 0x01U,
+	TSC1641_STATUS_UNEFINED              = 0x02U
+}TSC1641StatusT;
 
+typedef enum
+{
+	TSC1641_FD_1 = 0x0,              /*hi2c1*/
+	TSC1641_FD_2 = 0x1,              /*hi2c1*/
+	TSC1641_FD_3 = 0x2,              /*hi2c2*/
+	TSC1641_Invailid
+}TSC1641_NUM_T;
 
+TSC1641StatusT TSC1641Initialize( TSC1641_NUM_T instance );
+TSC1641StatusT TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
+TSC1641StatusT TSC1641SetRShunt( TSC1641_NUM_T instance );
+TSC1641StatusT TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
+TSC1641StatusT TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg);
+double TSC1641GetCurrentAmp( TSC1641_NUM_T instance );
 
 
