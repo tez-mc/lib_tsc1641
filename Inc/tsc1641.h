@@ -124,11 +124,6 @@ typedef struct{
 
 
 
-typedef enum{
-	TSC1641_STATUS_OK                    = 0x00U,
-	TSC1641_STATUS_ERROR                 = 0x01U,
-	TSC1641_STATUS_UNEFINED              = 0x02U
-}TSC1641StatusT;
 
 typedef enum
 {
@@ -138,14 +133,14 @@ typedef enum
 	TSC1641_Invailid
 }TSC1641_NUM_T;
 
-TSC1641StatusT TSC1641Initialize( TSC1641_NUM_T instance );
-TSC1641StatusT TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
+HAL_StatusTypeDef TSC1641Initialize( TSC1641_NUM_T instance );
+HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
 
 HAL_StatusTypeDef TSC1641_SetConf2_p(I2C_HandleTypeDef *hi2c, RegConfiguration * pCnf);
 
-TSC1641StatusT TSC1641SetRShunt( TSC1641_NUM_T instance );
-TSC1641StatusT TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
-TSC1641StatusT TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg);
+HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance );
+HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
+HAL_StatusTypeDef TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg);
 double TSC1641GetCurrentAmp( TSC1641_NUM_T instance );
 
 

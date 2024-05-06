@@ -25,7 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tsc1641.h"
-#include "tsc1651_cfg.h"
+#include "tsc1641_cfg.h"
 #include <assert.h>
 /* USER CODE END Includes */
 
@@ -99,7 +99,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  assert( TSC1641Initialize( TSC1641_FD_1 ) == TSC1641_STATUS_OK );
+  assert( TSC1641Initialize( TSC1641_FD_1 ) == HAL_OK );
 
   RegConfiguration cnf2 = {
 	 .bits = {
@@ -135,12 +135,12 @@ int main(void)
 		pLimit->POWER_OV_LIM = 0x1F40;
 		pLimit->TEMP_OV_LIM = 0x008C;
 
-//		assert( TSC1641SetConf( TSC1641_FD_1, &cnf2 ) == TSC1641_STATUS_OK ); //write of the configuration
-		HAL_StatusTypeDef  conf_ret = TSC1641_SetConf2_p( &hi2c1, &cnf2);
+		HAL_StatusTypeDef  conf_ret = TSC1641SetConf( TSC1641_FD_1, &cnf2 ); //write of the configuration
+//		HAL_StatusTypeDef  conf_ret = TSC1641_SetConf2_p( &hi2c1, &cnf2);
 		assert( conf_ret == HAL_OK );
-		assert( TSC1641SetRShunt( TSC1641_FD_1 ) == TSC1641_STATUS_OK );				//write of the shunt resistor value
-		assert( TSC1641SetLimits( TSC1641_FD_1, pLimit) == TSC1641_STATUS_OK );//write of the limit thresholds
-		assert( TSC1641SetMask( TSC1641_FD_1, &regMask ) == TSC1641_STATUS_OK );
+		assert( TSC1641SetRShunt( TSC1641_FD_1 ) == HAL_OK );				//write of the shunt resistor value
+		assert( TSC1641SetLimits( TSC1641_FD_1, pLimit) == HAL_OK );//write of the limit thresholds
+		assert( TSC1641SetMask( TSC1641_FD_1, &regMask ) == HAL_OK );
 
 
 

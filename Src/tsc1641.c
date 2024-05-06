@@ -7,7 +7,7 @@
 
 
 #include "tsc1641.h"
-#include "tsc1651_cfg.h"
+#include "tsc1641_cfg.h"
 #include "stm32l4xx_hal_i2c.h"
 #include "i2c.h"
 
@@ -31,13 +31,14 @@ typedef struct{
 }TSC1641Handle;
 
 //===========================================  MEMBERS ===========================================
-//
-//static I2C_HandleTypeDef* I2C_Instances[] = {
-//	&hi2c1
-//};
 
-//#define NUM_OF_INSTANCES ( sizeof( I2C_Instances ) / sizeof ( I2C_Instances[ 0 ] ) )
-#define NUM_OF_INSTANCES 1
+static I2C_HandleTypeDef* I2C_Instances[] = {
+	&hi2c1
+};
+
+#define NUM_OF_INSTANCES ( sizeof( I2C_Instances ) / sizeof ( I2C_Instances[ 0 ] ) )
+
+//#define NUM_OF_INSTANCES 1
 
 
 static TSC1641Handle tsc_handles[ NUM_OF_INSTANCES ] = {
@@ -50,62 +51,62 @@ static uint8_t DataCurrent[ 2 ];
 
 //===========================================  INTERFACE ===========================================
 
-TSC1641StatusT TSC1641Initialize( TSC1641_NUM_T instance ){
-	TSC1641StatusT retval = TSC1641_STATUS_OK;
+HAL_StatusTypeDef TSC1641Initialize( TSC1641_NUM_T instance ){
+	HAL_StatusTypeDef retval = HAL_OK;
 
 	if( instance >= NUM_OF_INSTANCES || tsc_handles[ instance ].i2c_handle != NULL ){
-		retval = TSC1641_STATUS_ERROR;
+		retval = HAL_ERROR;
 	}
-//	else{
-//		tsc_handles[ instance ].i2c_handle	= I2C_Instances[ instance ];
-//	}
+	else{
+		tsc_handles[ instance ].i2c_handle	= I2C_Instances[ instance ];
+	}
 
 	return retval;
 }
 
-TSC1641StatusT TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf ){
-	TSC1641StatusT retval = TSC1641_STATUS_UNEFINED;
+HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * rcnf ){
+	HAL_StatusTypeDef retval = HAL_OK;
 
 	if( instance >= NUM_OF_INSTANCES  ){
-		retval = TSC1641_STATUS_ERROR;
+		retval = HAL_ERROR;
 	}else{
-		retval = TSC1641_SetConf2_p( &hi2c1, conf ) == HAL_OK ? TSC1641_STATUS_OK : TSC1641_STATUS_ERROR;
+		retval = TSC1641_SetConf2_p( &hi2c1, rcnf );
 	}
 
 	return retval;
 }
 
-TSC1641StatusT TSC1641SetRShunt( TSC1641_NUM_T instance ){
-	TSC1641StatusT retval = TSC1641_STATUS_UNEFINED;
+HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance ){
+	HAL_StatusTypeDef retval = HAL_OK;
 
 	if( instance >= NUM_OF_INSTANCES ){
-		retval = TSC1641_STATUS_ERROR;
+		retval = HAL_ERROR;
 	}else{
-		retval = TSC1641_SetRShunt_p( &hi2c1 ) == HAL_OK ? TSC1641_STATUS_OK : TSC1641_STATUS_ERROR;
+		retval = TSC1641_SetRShunt_p( &hi2c1 );
 	}
 
 	return retval;
 }
 
-TSC1641StatusT TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT){
-	TSC1641StatusT retval = TSC1641_STATUS_UNEFINED;
+HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT){
+	HAL_StatusTypeDef retval = HAL_OK;
 
 	if( instance >= NUM_OF_INSTANCES  ){
-		retval = TSC1641_STATUS_ERROR;
+		retval = HAL_ERROR;
 	}else{
-		retval = TSC1641_SetLimits_p( &hi2c1, LIMIT ) == HAL_OK ? TSC1641_STATUS_OK : TSC1641_STATUS_ERROR;
+		retval = TSC1641_SetLimits_p( &hi2c1, LIMIT );
 	}
 
 	return retval;
 }
 
-TSC1641StatusT TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg){
-	TSC1641StatusT retval = TSC1641_STATUS_UNEFINED;
+HAL_StatusTypeDef TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg){
+	HAL_StatusTypeDef retval = HAL_OK;
 
 	if( instance >= NUM_OF_INSTANCES  ){
-		retval = TSC1641_STATUS_ERROR;
+		retval = HAL_ERROR;
 	}else{
-		retval = TSC1641_SetMask_p( &hi2c1, reg ) == HAL_OK ? TSC1641_STATUS_OK :TSC1641_STATUS_ERROR;
+		retval = TSC1641_SetMask_p( &hi2c1, reg );
 	}
 
 	return retval;
