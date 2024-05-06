@@ -140,6 +140,9 @@ typedef enum
 
 TSC1641StatusT TSC1641Initialize( TSC1641_NUM_T instance );
 TSC1641StatusT TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
+
+HAL_StatusTypeDef TSC1641_SetConf2_p(I2C_HandleTypeDef *hi2c, RegConfiguration * pCnf);
+
 TSC1641StatusT TSC1641SetRShunt( TSC1641_NUM_T instance );
 TSC1641StatusT TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
 TSC1641StatusT TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg);

@@ -105,7 +105,7 @@ int main(void)
 	 .bits = {
 		 .M02 = TSC1641_Mode_VshloadCont,	// Mode continuous Vshunt and Vload
 		 .TEMP = TSC1641_Temp_On,
-		 .CT03 = TSC1641_Conf_CT_32768,		// conversion time 32ms
+		 .CT03 = TSC1641_Conf_CT_128,		// conversion time 32ms
 		 .EMPTY = 0,
 		 .RST = TSC1641_rst_Off				// reset bit to ZERO
 	 }
@@ -135,7 +135,9 @@ int main(void)
 		pLimit->POWER_OV_LIM = 0x1F40;
 		pLimit->TEMP_OV_LIM = 0x008C;
 
-		assert( TSC1641SetConf( TSC1641_FD_1, &cnf2 ) == TSC1641_STATUS_OK ); //write of the configuration
+//		assert( TSC1641SetConf( TSC1641_FD_1, &cnf2 ) == TSC1641_STATUS_OK ); //write of the configuration
+		HAL_StatusTypeDef  conf_ret = TSC1641_SetConf2_p( &hi2c1, &cnf2);
+		assert( conf_ret == HAL_OK );
 		assert( TSC1641SetRShunt( TSC1641_FD_1 ) == TSC1641_STATUS_OK );				//write of the shunt resistor value
 		assert( TSC1641SetLimits( TSC1641_FD_1, pLimit) == TSC1641_STATUS_OK );//write of the limit thresholds
 		assert( TSC1641SetMask( TSC1641_FD_1, &regMask ) == TSC1641_STATUS_OK );

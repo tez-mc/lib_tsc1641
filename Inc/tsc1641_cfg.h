@@ -16,8 +16,8 @@
 
 /*------------------I2C adress ------------------------------------*/
 #define I2C_TSC1641_DEFAULT_ADDR	0x40										// 5.2.1 Serial bus address
-#define I2C_TSC1641_ADD_R			( ( I2C_TSC1641_DEFAULT_ADDR << 1 ) | 1 )	// Value if A1 and A0 are connected to GND. Otherwise please rfer to the datasheet
-#define I2C_TSC1641_ADD_W			( I2C_TSC1641_DEFAULT_ADDR << 1 )			// Value if A1 and A0 are connected to GND. Otherwise please rfer to the datasheet
+#define I2C_TSC1641_ADD_W						0x80									// Value if A1 and A0 are connected to GND. Otherwise please rfer to the datasheet
+#define I2C_TSC1641_ADD_R					  0x81									// Value if A1 and A0 are connected to GND. Otherwise please rfer to the datasheet
 
 
 
