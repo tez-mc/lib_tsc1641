@@ -72,6 +72,7 @@ typedef struct{
 	uint8_t TSC1641_MODE ;
 } Configuration;
 
+// 5.3.1 Configuration register (00h)
 typedef struct{
 	union{
 		uint16_t bitbuffer;
@@ -83,7 +84,7 @@ typedef struct{
 			uint8_t RST 	: 1;
 		}bits;
 	};
-} Configuration_2;
+} RegConfiguration;
 
 // definition of the ALERT register
 typedef struct{
@@ -97,6 +98,27 @@ typedef struct{
 	uint8_t TSC1641_APOL ;	// Alert polarity
 	uint8_t TSC1641_ALEN ;	// Alert Latch Enable
 } Alert;
+
+// 5.3.7 Mask register (06h)
+typedef
+	union{
+		struct{
+			uint8_t ALEN 	: 1;	// Alert Latch Enable
+			uint8_t APOL 	: 1;	// Alert polarity
+			uint8_t EMPTY_1	: 6;
+			uint8_t EMPTY_2	: 1;
+			uint8_t CVNR  	: 1;	// Conversion ready alert enable
+			uint8_t TOL 	: 1;		// Temperature Over Limit
+			uint8_t POL 	: 1;		// Power Over Limit
+			uint8_t LUL 	: 1;		// Load Voltage Under voltage
+			uint8_t LOL 	: 1;		// Load Voltage Over voltage
+			uint8_t SUL 	: 1;		// Shunt Voltage Under voltage
+			uint8_t SOL 	: 1;		// Shunt Voltage Over voltage
+
+		}bits;
+		uint16_t bitbuffer;
+} RegMask;
+
 
 // Definition of the parameters in alert register :
 typedef struct{
@@ -123,10 +145,13 @@ typedef struct{
 }Limit;
 
 void TSC1641_SetConf(I2C_HandleTypeDef *hi2c1, Configuration * CONF1);
-void TSC1641_SetConf2(I2C_HandleTypeDef *hi2c1, Configuration_2 * conf);
+void TSC1641_SetConf2(I2C_HandleTypeDef *hi2c1, RegConfiguration * conf);
 
 void TSC1641_SetRShunt(I2C_HandleTypeDef *hi2c1);
+
 void TSC1641_SetAlerts(I2C_HandleTypeDef *hi2c1, Alert* ALERT1);
+void TSC1641_SetMask(I2C_HandleTypeDef *hi2c1, RegMask* reg);
+
 void TSC1641_SetLimits(I2C_HandleTypeDef *hi2c1, Limit* LIMIT);
 void TSC1641_GetAlert(I2C_HandleTypeDef *hi2c1, Flag* FLAG1);
 void TSC1641_GetShuntVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);

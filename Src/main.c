@@ -104,24 +104,42 @@ int main(void)
 //  pCnf->TSC1641_TEMP = TSC1641_Temp_On;
 //  pCnf->TSC1641_MODE = TSC1641_Mode_VshloadCont; /* Mode continuous Vshunt and Vload*/
 
-  Configuration_2 cnf2;
-  cnf2.bits.RST = TSC1641_rst_Off;// reset bit to ZERO
-  cnf2.bits.CT03 = TSC1641_Conf_CT_32768;// conversion time 32ms
-  cnf2.bits.TEMP = TSC1641_Temp_On;// temp is on
-  cnf2.bits.M02 = TSC1641_Mode_VshloadCont;/* Mode continuous Vshunt and Vload*/
+  RegConfiguration cnf2 = {
+	 .bits = {
+		 .M02 = TSC1641_Mode_VshloadCont,	// Mode continuous Vshunt and Vload
+		 .TEMP = TSC1641_Temp_On,
+		 .CT03 = TSC1641_Conf_CT_32768,		// conversion time 32ms
+		 .EMPTY = 0,
+		 .RST = TSC1641_rst_Off				// reset bit to ZERO
+	 }
+	};
 
 
-  	  Alert alert;
-	Alert *pAlert = &alert;
-	pAlert->TSC1641_SOL = TSC1641_Alert_On;
-	pAlert->TSC1641_SUL = TSC1641_Alert_Off;
-	pAlert->TSC1641_LOL = TSC1641_Alert_On;
-	pAlert->TSC1641_LUL = TSC1641_Alert_Off;
-	pAlert->TSC1641_POL = TSC1641_Alert_On;
-	pAlert->TSC1641_TOL = TSC1641_Alert_Off;
-	pAlert->TSC1641_CVNR = TSC1641_Alert_On;
-	pAlert->TSC1641_APOL = TSC1641_Alert_Off;
-	pAlert->TSC1641_ALEN = TSC1641_Alert_On;
+//  	  Alert alert;
+//	Alert *pAlert = &alert;
+//	pAlert->TSC1641_SOL = TSC1641_Alert_On;
+//	pAlert->TSC1641_SUL = TSC1641_Alert_Off;
+//	pAlert->TSC1641_LOL = TSC1641_Alert_On;
+//	pAlert->TSC1641_LUL = TSC1641_Alert_Off;
+//	pAlert->TSC1641_POL = TSC1641_Alert_On;
+//	pAlert->TSC1641_TOL = TSC1641_Alert_Off;
+//	pAlert->TSC1641_CVNR = TSC1641_Alert_On;
+//	pAlert->TSC1641_APOL = TSC1641_Alert_Off;
+//	pAlert->TSC1641_ALEN = TSC1641_Alert_On;
+
+	RegMask regMask = {
+		.bits = {
+			.ALEN = TSC1641_Alert_On,
+			.APOL = TSC1641_Alert_Off,
+			.CVNR = TSC1641_Alert_On,
+			.TOL = TSC1641_Alert_Off,
+			.POL = TSC1641_Alert_On,
+			.LUL = TSC1641_Alert_Off,
+			.LOL = TSC1641_Alert_On,
+			.SUL = TSC1641_Alert_Off,
+			.SOL = TSC1641_Alert_On
+		}
+	};
 
 	Limit limit;
 		Limit *pLimit = &limit;
@@ -136,7 +154,9 @@ int main(void)
 		TSC1641_SetConf2( &hi2c1, &cnf2 ); //write of the configuration
 		TSC1641_SetRShunt(&hi2c1);				//write of the shunt resistor value
 		TSC1641_SetLimits(&hi2c1, pLimit);//write of the limit thresholds
-		TSC1641_SetAlerts(&hi2c1, pAlert);//write the mask register
+
+//		TSC1641_SetAlerts(&hi2c1, pAlert);//write the mask register
+		TSC1641_SetMask( &hi2c1, &regMask );
 
 
 
