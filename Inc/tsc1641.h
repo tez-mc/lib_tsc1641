@@ -72,6 +72,19 @@ typedef struct{
 	uint8_t TSC1641_MODE ;
 } Configuration;
 
+typedef struct{
+	union{
+		uint16_t bitbuffer;
+		struct{
+			uint8_t M02		: 3;
+			uint8_t TEMP 	: 1;
+			uint8_t CT03 	: 4;
+			uint8_t EMPTY 	: 7;
+			uint8_t RST 	: 1;
+		}bits;
+	};
+} Configuration_2;
+
 // definition of the ALERT register
 typedef struct{
 	uint8_t TSC1641_SOL ;		// Shunt Voltage Over voltage
@@ -110,6 +123,8 @@ typedef struct{
 }Limit;
 
 void TSC1641_SetConf(I2C_HandleTypeDef *hi2c1, Configuration * CONF1);
+void TSC1641_SetConf2(I2C_HandleTypeDef *hi2c1, Configuration_2 * conf);
+
 void TSC1641_SetRShunt(I2C_HandleTypeDef *hi2c1);
 void TSC1641_SetAlerts(I2C_HandleTypeDef *hi2c1, Alert* ALERT1);
 void TSC1641_SetLimits(I2C_HandleTypeDef *hi2c1, Limit* LIMIT);
