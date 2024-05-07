@@ -2,9 +2,9 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "main.h"
-#include "i2c.h"
+#include <stdbool.h>
 
+#include "main.h"
 
 
 /*------------------register map-----------------------------------*/
@@ -100,6 +100,7 @@ typedef
 
 
 // Definition of the parameters in alert register :
+//5.3.8 check errors
 typedef struct{
 	uint8_t TSC1641_OVF ;		// Math Overflow Flag
 	uint8_t TSC1641_SATF ;	// Measurement saturation Flag
@@ -113,6 +114,7 @@ typedef struct{
 }Flag;
 
 // Definition of alert thresholds :
+// 5.3.10 - 5.3.15
 typedef struct{
 	uint16_t VSHUNT_OV_LIM ;	// Vsunt Over voltage limit value
 	uint16_t VSHUNT_UV_LIM ;		// Vshunt Under voltage limit value
@@ -125,8 +127,7 @@ typedef struct{
 
 
 
-typedef enum
-{
+typedef enum{
 	TSC1641_FD_1 = 0x0,              /*hi2c1*/
 	TSC1641_FD_2 = 0x1,              /*hi2c1*/
 	TSC1641_FD_3 = 0x2,              /*hi2c2*/
@@ -136,11 +137,16 @@ typedef enum
 HAL_StatusTypeDef TSC1641Initialize( TSC1641_NUM_T instance );
 HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
 
-//HAL_StatusTypeDef TSC1641_SetConf2_p(I2C_HandleTypeDef *hi2c, RegConfiguration * pCnf);
-
 HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance );
 HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
 HAL_StatusTypeDef TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg);
 double TSC1641GetCurrentAmp( TSC1641_NUM_T instance );
+
+bool TSC1641SetDeviceAddress( TSC1641_NUM_T inst, uint16_t addr );
+
+HAL_StatusTypeDef TSC1641SetLoadOVLimit( TSC1641_NUM_T instance, double v_loadOV );
+HAL_StatusTypeDef TSC1641SetLoadUVLimit( TSC1641_NUM_T instance, double v_loadUV );
+
+HAL_StatusTypeDef TSC1641SetTempOLimit( TSC1641_NUM_T instance, double t_over_limit );
 
 

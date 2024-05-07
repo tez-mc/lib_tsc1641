@@ -106,9 +106,9 @@ int main(void)
 	 .bits = {
 		 .M02 = TSC1641_Mode_VshloadCont,	// Mode continuous Vshunt and Vload
 		 .TEMP = TSC1641_Temp_Off,
-		 .CT03 = TSC1641_Conf_CT_256,		// conversion time 32ms
+		 .CT03 = TSC1641_Conf_CT_2048,		// conversion time 32ms
 		 .EMPTY = 0,
-		 .RST = TSC1641_rst_Off				// reset bit to ZERO
+		 .RST = TSC1641_rst_On				// reset bit to ZERO
 	 }
 	};
 
@@ -129,15 +129,14 @@ int main(void)
 
 	Limit limit;
 		Limit *pLimit = &limit;
-		pLimit->VSHUNT_OV_LIM = 0x0FA0;
-		pLimit->VSHUNT_UV_LIM = 0x07D0;
-		pLimit->VLOAD_OV_LIM = 0x3A98;
-		pLimit->VLOAD_UV_LIM = 0x1D4C;
-		pLimit->POWER_OV_LIM = 0x1F40;
-		pLimit->TEMP_OV_LIM = 0x008C;
+		pLimit->VSHUNT_OV_LIM = 0x0FA0;// LSB == 2.5uV, Vshov == 0x0FA0 *2.5uV  == 0.01[V]
+		pLimit->VSHUNT_UV_LIM = 0x07D0;// LSB == 2.5uV ,Vshuv == 0x07D0 * 2.5e-6 ==  0.005[V]
+		pLimit->VLOAD_OV_LIM = 0x3A98;// LSB = 2mV, Vlmax == 0x3A98 * 2e-3 ==  30[V]
+		pLimit->VLOAD_UV_LIM = 0x1D4C;// LSB = 2mV, Vlmax == 0x1D4C * 2e-3 ==  15[V]
+		pLimit->POWER_OV_LIM = 0x1F40;// LSB == 25mV,Pmax = 0x1F40 * 25e-3 ==200
+		pLimit->TEMP_OV_LIM = 0x008C;// LSB == 0.5C, Tmax == 0x008C * 0.5 == 70[deg C]
 
 		HAL_StatusTypeDef  conf_ret = TSC1641SetConf( TSC1641_FD_1, &cnf2 ); //write of the configuration
-//		HAL_StatusTypeDef  conf_ret = TSC1641_SetConf2_p( &hi2c1, &cnf2);
 		assert( conf_ret == HAL_OK );
 		assert( TSC1641SetRShunt( TSC1641_FD_1 ) == HAL_OK );				//write of the shunt resistor value
 		assert( TSC1641SetLimits( TSC1641_FD_1, pLimit) == HAL_OK );//write of the limit thresholds

@@ -7,6 +7,9 @@
 #define V_LOAD_LSB		2e-3//[V]
 #define RSHUNT			5e-3//[Ohm]
 #define RSHUNT_LSB		10e-6//[Ohm]
+#define POWER_LSB		25e-3//[W]
+#define TEMP_LSB		0.5	//[deg C]
+
 #define I_LSB 			( V_SHUNT_LSB / RSHUNT )
 
 

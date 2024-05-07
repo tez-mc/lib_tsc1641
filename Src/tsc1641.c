@@ -23,15 +23,7 @@ static HAL_StatusTypeDef TSC1641_SetRShunt_p( TSC1641Handle* tscHandle );
 static HAL_StatusTypeDef TSC1641_SetMask_p( TSC1641Handle* tscHandle, RegMask* reg );
 static HAL_StatusTypeDef TSC1641_SetLimits_p( TSC1641Handle* tscHandle, Limit* LIMIT);
 
-//static void TSC1641_GetAlert(I2C_HandleTypeDef *hi2c1, Flag* FLAG1);
-//static void TSC1641_GetShuntVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);
-//static void TSC1641_GetVloadVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]);
 static void TSC1641_GetCurrentVal_p( TSC1641Handle* tscHandle, uint8_t Data[] );
-
-//static void set_handle( TSC1641_NUM_T instance );
-
-//===========================================  TYPES ===========================================
-
 
 
 //===========================================  MEMBERS ===========================================
@@ -49,9 +41,6 @@ static I2C_HandleTypeDef* I2C_Instances[] = {
 };
 
 #define NUM_OF_INSTANCES ( sizeof( I2C_Instances ) / sizeof ( I2C_Instances[ 0 ] ) )
-
-//#define NUM_OF_INSTANCES 1
-
 
 static TSC1641Handle tsc_handles[ NUM_OF_INSTANCES ] = {
 	{
@@ -80,6 +69,7 @@ HAL_StatusTypeDef TSC1641Initialize( TSC1641_NUM_T instance ){
 	return retval;
 }
 
+// 5.3.1 Configuration register (00h)
 HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * rcnf ){
 	HAL_StatusTypeDef retval = HAL_OK;
 
@@ -93,6 +83,7 @@ HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * rcn
 	return retval;
 }
 
+// 5.3.9 Rshunt register (08h)
 HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance ){
 	HAL_StatusTypeDef retval = HAL_OK;
 
@@ -106,6 +97,7 @@ HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance ){
 	return retval;
 }
 
+// 5.3.10 - 5.3.15
 HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT){
 	HAL_StatusTypeDef retval = HAL_OK;
 
@@ -119,6 +111,7 @@ HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT){
 	return retval;
 }
 
+// 5.3.7 Mask register (06h)
 HAL_StatusTypeDef TSC1641SetMask( TSC1641_NUM_T instance, RegMask* reg){
 	HAL_StatusTypeDef retval = HAL_OK;
 
@@ -174,9 +167,56 @@ static HAL_StatusTypeDef TSC1641_SetMask_p( TSC1641Handle* tscHandle, RegMask* r
 	return HAL_I2C_Master_Transmit(hi2c, tscHandle->devWriteAddress, &datasend[0], 3, 1000);
 }
 
+HAL_StatusTypeDef TSC1641SetLoadOVLimit( TSC1641_NUM_T instance, double v_loadOV ){
+	if( instance >= NUM_OF_INSTANCES || TSC1641_Invailid == tsc_handles[ instance ].i2c_id ){
+		return HAL_ERROR;
+	}else{
+		TSC1641Handle* tscHandle = &( tsc_handles[ instance ] );
+		I2C_HandleTypeDef *hi2c = I2C_Instances[ tscHandle->i2c_id ];
+		uint16_t overVoltageDigit = ( uint16_t )( v_loadOV / V_LOAD_LSB );
+		uint8_t datasend[3];
+		/* Write SHUNT OV limit */
+		datasend[ 0 ] = TSC1641_RegAdd_VshuntOV;
+		datasend[ 1 ] = overVoltageDigit >> 8;
+		datasend[ 2 ] = overVoltageDigit;
+		return HAL_I2C_Master_Transmit( hi2c, tscHandle->devWriteAddress, &datasend[ 0 ], 3, 1000 );
+	}
+}
+
+HAL_StatusTypeDef TSC1641SetLoadUVLimit( TSC1641_NUM_T instance, double v_loadUV ){
+	if( instance >= NUM_OF_INSTANCES || TSC1641_Invailid == tsc_handles[ instance ].i2c_id ){
+		return HAL_ERROR;
+	}else{
+		TSC1641Handle* tscHandle = &( tsc_handles[ instance ] );
+		I2C_HandleTypeDef *hi2c = I2C_Instances[ tscHandle->i2c_id ];
+		uint16_t underVoltageDigit = ( uint16_t )( v_loadUV / V_LOAD_LSB );
+		uint8_t datasend[3];
+		/* Write SHUNT OV limit */
+		datasend[ 0 ] = TSC1641_RegAdd_VshuntUV;
+		datasend[ 1 ] = underVoltageDigit >> 8;
+		datasend[ 2 ] = underVoltageDigit;
+		return HAL_I2C_Master_Transmit(hi2c, tscHandle->devWriteAddress, &datasend[0], 3, 1000);
+	}
+}
+
+HAL_StatusTypeDef TSC1641SetTempOLimit( TSC1641_NUM_T instance, double t_over_limit ){
+	if( instance >= NUM_OF_INSTANCES || TSC1641_Invailid == tsc_handles[ instance ].i2c_id ){
+		return HAL_ERROR;
+	}else{
+		TSC1641Handle* tscHandle = &( tsc_handles[ instance ] );
+		I2C_HandleTypeDef *hi2c = I2C_Instances[ tscHandle->i2c_id ];
+		uint16_t tempOverLimitDigit = ( uint16_t )( t_over_limit / TEMP_LSB );
+		uint8_t datasend[ 3 ];
+		datasend[ 0 ] = TSC1641_RegAdd_TempOL;
+		datasend[ 1 ] = tempOverLimitDigit >> 8;
+		datasend[ 2 ] = tempOverLimitDigit;
+		return HAL_I2C_Master_Transmit( hi2c, tscHandle->devWriteAddress, &datasend[ 0 ], 3, 1000 );
+	}
+}
+
 static HAL_StatusTypeDef TSC1641_SetLimits_p( TSC1641Handle* tscHandle, Limit* LIMIT ){
 	I2C_HandleTypeDef *hi2c = I2C_Instances[ tscHandle->i2c_id ];
-	uint8_t datasend[3];
+	uint8_t datasend[ 3 ];
 
 	/* Write SHUNT OV limit */
 	datasend[0] = TSC1641_RegAdd_VshuntOV;
@@ -241,31 +281,6 @@ static HAL_StatusTypeDef TSC1641_SetLimits_p( TSC1641Handle* tscHandle, Limit* L
 	return HAL_I2C_Master_Transmit(hi2c, tscHandle->devWriteAddress, &datasend[0], 3, 1000);
 }
 
-/*Get the flag regiuster by reading the FLAG register and store the data in the FLAG1 variable*/
-//static void TSC1641_GetAlert(I2C_HandleTypeDef *hi2c1, Flag* FLAG1){
-//	uint8_t Data[2] = {0x00, 0x00};
-//	uint8_t datasend[3] = {TSC1641_RegAdd_Alert, Data[0], Data[1]};
-//	HAL_I2C_Master_Transmit(hi2c1, I2C_TSC1641_ADD_W, &datasend[0], 1, 1000);
-//	HAL_I2C_Master_Receive(hi2c1, I2C_TSC1641_ADD_R, &Data[ 0 ], 2, 1000);
-//
-//	FLAG1->TSC1641_OVF = (Data[0]&0x40)>>6 ;
-//	FLAG1->TSC1641_SATF = (Data[0]&0x20)>>5 ;
-//	FLAG1->TSC1641_SOF = (Data[1]&0x40)>>6 ;
-//	FLAG1->TSC1641_SUF = (Data[1]&0x20)>>5 ;
-//	FLAG1->TSC1641_LOF = (Data[1]&0x10)>>4 ;
-//	FLAG1->TSC1641_LUF = (Data[1]&0x08)>>3 ;
-//	FLAG1->TSC1641_POF = (Data[1]&0x04)>>2 ;
-//	FLAG1->TSC1641_TOF = (Data[1]&0x02)>>1;
-//	FLAG1->TSC1641_CVRF = (Data[1]&0x01);
-//}
-
-
-//static void TSC1641_GetVloadVal(I2C_HandleTypeDef *hi2c1, uint8_t Data[]){
-//	uint8_t datasend[1] = {TSC1641_RegAdd_LoadV};
-//	HAL_I2C_Master_Transmit(hi2c1, I2C_TSC1641_ADD_W, &datasend[0], 1, 1000);
-//	HAL_I2C_Master_Receive(hi2c1, I2C_TSC1641_ADD_R, &Data[0], 2, 1000);
-//}
-
 static void TSC1641_GetCurrentVal_p( TSC1641Handle* tscHandle, uint8_t Data[] ){
 	I2C_HandleTypeDef *hi2c = I2C_Instances[ tscHandle->i2c_id ];
 	uint8_t datasend[ 1 ] = { TSC1641_RegAdd_Current };
@@ -273,3 +288,16 @@ static void TSC1641_GetCurrentVal_p( TSC1641Handle* tscHandle, uint8_t Data[] ){
 	HAL_I2C_Master_Receive( hi2c, tscHandle->devReadAddress, &Data[ 0 ], 2, 1000 );
 }
 
+// 5.2.1 Serial bus address
+bool TSC1641SetDeviceAddress( TSC1641_NUM_T inst, uint16_t addr ){
+	if( inst < NUM_OF_INSTANCES ){
+		uint16_t r_addr = ( ( addr << 1 ) | 0x1 );
+		uint16_t w_addr = ( addr << 1 );
+		TSC1641Handle* tscHandle = &( tsc_handles[ inst ] );
+		tscHandle->devReadAddress = r_addr;
+		tscHandle->devWriteAddress = w_addr;
+		return true;
+	}else{
+		return false;
+	}
+}
