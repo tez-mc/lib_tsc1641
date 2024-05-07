@@ -99,13 +99,14 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  HAL_Delay(100);
   assert( TSC1641Initialize( TSC1641_FD_1 ) == HAL_OK );
 
   RegConfiguration cnf2 = {
 	 .bits = {
 		 .M02 = TSC1641_Mode_VshloadCont,	// Mode continuous Vshunt and Vload
-		 .TEMP = TSC1641_Temp_On,
-		 .CT03 = TSC1641_Conf_CT_128,		// conversion time 32ms
+		 .TEMP = TSC1641_Temp_Off,
+		 .CT03 = TSC1641_Conf_CT_256,		// conversion time 32ms
 		 .EMPTY = 0,
 		 .RST = TSC1641_rst_Off				// reset bit to ZERO
 	 }

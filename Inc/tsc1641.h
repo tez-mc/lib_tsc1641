@@ -136,7 +136,7 @@ typedef enum
 HAL_StatusTypeDef TSC1641Initialize( TSC1641_NUM_T instance );
 HAL_StatusTypeDef TSC1641SetConf( TSC1641_NUM_T instance, RegConfiguration * conf );
 
-HAL_StatusTypeDef TSC1641_SetConf2_p(I2C_HandleTypeDef *hi2c, RegConfiguration * pCnf);
+//HAL_StatusTypeDef TSC1641_SetConf2_p(I2C_HandleTypeDef *hi2c, RegConfiguration * pCnf);
 
 HAL_StatusTypeDef TSC1641SetRShunt( TSC1641_NUM_T instance );
 HAL_StatusTypeDef TSC1641SetLimits( TSC1641_NUM_T instance , Limit* LIMIT);
